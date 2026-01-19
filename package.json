@@ -1,0 +1,12 @@
+{
+  "name": "openmeteo-cache-server",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.18.2",
+    "redis": "^4.6.0",
+    "axios": "^1.6.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
