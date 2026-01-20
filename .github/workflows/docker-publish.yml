@@ -44,11 +44,23 @@ jobs:
           if [ "${{ github.event_name }}" = "release" ]; then
             # For releases, use the release tag
             TAG="${{ github.event.release.tag_name }}"
+            
+            # Validate that tag is not empty
+            if [ -z "$TAG" ]; then
+              echo "Error: Release tag is empty"
+              exit 1
+            fi
+            
             echo "tag=$TAG" >> $GITHUB_OUTPUT
             echo "Building release with tag: $TAG"
           else
-            # For branch pushes, use branch name
+            # For branch pushes, use branch name with sanitization
             TAG="${{ github.ref_name }}"
+            
+            # Sanitize branch name for Docker tag compatibility
+            # Replace / with - and convert to lowercase
+            TAG=$(echo "$TAG" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+            
             echo "tag=$TAG" >> $GITHUB_OUTPUT
             echo "Building branch with tag: $TAG"
           fi
