@@ -51,6 +51,15 @@ jobs:
               exit 1
             fi
             
+            # Basic sanitization for release tags (remove any potential shell injection)
+            TAG=$(echo "$TAG" | sed 's/[;&|`$()]//g')
+            
+            # Validate tag is not empty after sanitization
+            if [ -z "$TAG" ]; then
+              echo "Error: Release tag became empty after sanitization"
+              exit 1
+            fi
+            
             echo "tag=$TAG" >> $GITHUB_OUTPUT
             echo "Building release with tag: $TAG"
           else
@@ -58,8 +67,16 @@ jobs:
             TAG="${{ github.ref_name }}"
             
             # Sanitize branch name for Docker tag compatibility
-            # Convert to lowercase, replace / with -, remove invalid characters
-            TAG=$(echo "$TAG" | tr '[:upper:]' '[:lower:]' | tr '/' '-' | sed 's/[^a-z0-9._-]//g' | sed 's/^[._-]*//; s/[._-]*$//' | sed 's/[-][-]*/-/g')
+            # Step 1: Convert to lowercase
+            TAG=$(echo "$TAG" | tr '[:upper:]' '[:lower:]')
+            # Step 2: Replace / with -
+            TAG=$(echo "$TAG" | tr '/' '-')
+            # Step 3: Remove invalid characters (keep only a-z0-9._-)
+            TAG=$(echo "$TAG" | sed 's/[^a-z0-9._-]//g')
+            # Step 4: Strip leading/trailing special characters
+            TAG=$(echo "$TAG" | sed 's/^[._-]*//; s/[._-]*$//')
+            # Step 5: Collapse consecutive dashes
+            TAG=$(echo "$TAG" | sed 's/[-][-]*/-/g')
             
             # Ensure tag is not empty after sanitization
             if [ -z "$TAG" ]; then
