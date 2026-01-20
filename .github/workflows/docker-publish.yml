@@ -58,9 +58,8 @@ jobs:
             TAG="${{ github.ref_name }}"
             
             # Sanitize branch name for Docker tag compatibility
-            # Docker tags must match: [a-z0-9]+(?:[._-][a-z0-9]+)*
             # Convert to lowercase, replace / with -, remove invalid characters
-            TAG=$(echo "$TAG" | tr '[:upper:]' '[:lower:]' | tr '/' '-' | sed 's/[^a-z0-9._-]//g' | sed 's/^[._-]*//; s/[._-]*$//' | sed 's/[._-][._-]*/-/g')
+            TAG=$(echo "$TAG" | tr '[:upper:]' '[:lower:]' | tr '/' '-' | sed 's/[^a-z0-9._-]//g' | sed 's/^[._-]*//; s/[._-]*$//' | sed 's/[-][-]*/-/g')
             
             # Ensure tag is not empty after sanitization
             if [ -z "$TAG" ]; then
