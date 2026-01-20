@@ -39,11 +39,25 @@ jobs:
           IMAGE_NAME="ghcr.io/${{ github.repository }}"
           IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
           echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+          
+          # Extract tag based on event type
+          if [ "${{ github.event_name }}" = "release" ]; then
+            # For releases, use the release tag
+            TAG="${{ github.event.release.tag_name }}"
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "Building release with tag: $TAG"
+          else
+            # For branch pushes, use branch name
+            TAG="${{ github.ref_name }}"
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "Building branch with tag: $TAG"
+          fi
 
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v6
         with:
           image: ${{ steps.meta.outputs.image_name }}
+          tags: ${{ steps.meta.outputs.tag }}
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
