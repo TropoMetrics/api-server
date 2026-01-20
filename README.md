@@ -205,7 +205,11 @@ Contributions are welcome! Please ensure all changes:
 - Follow the existing code style
 - Include appropriate error handling
 - Update documentation as needed
-- Use Dutch for console log messages (existing convention)
+- Use Dutch for console log messages (existing convention for internal consistency)
+  - Connection messages: "Redis verbonden met..."
+  - Cache operations: "Cache HIT voor..." / "Cache MISS voor..."
+  - Error messages: "Te veel pogingen" / "Kan niet verbinden met..."
+  - Shutdown: "SIGTERM ontvangen, server wordt afgesloten..."
 
 ## Acknowledgments
 

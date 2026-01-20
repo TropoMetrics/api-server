@@ -30,7 +30,13 @@ The main application file that:
 ## Development Guidelines
 
 ### Code Style
-- Use Dutch for console logging messages (existing pattern)
+- Use Dutch for console logging messages (existing pattern maintained for consistency)
+  - Examples from codebase:
+    - `console.log('Redis verbonden met...')` - Connection messages
+    - `console.log('Cache HIT voor...')` - Cache hit notifications
+    - `console.log('Cache MISS voor...')` - Cache miss notifications
+    - `console.error('Te veel Redis reconnect pogingen')` - Error messages
+    - `console.log('SIGTERM ontvangen, server wordt afgesloten...')` - Shutdown messages
 - Use async/await for asynchronous operations
 - Include proper error handling with try-catch blocks
 - Log cache hits/misses for debugging
