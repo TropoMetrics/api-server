@@ -48,8 +48,9 @@ The main application file that:
 - `REDIS_PORT`: Redis port (default: 6379)
 
 ### Caching Strategy
-- Cache keys are generated using MD5 hash of: `endpoint:sorted_query_params`
-- Query parameters are sorted alphabetically before hashing to ensure consistency
+- Cache keys are generated using MD5 hash of: `endpoint:JSON.stringify(sortedQuery)`
+  - Query parameters are sorted alphabetically before JSON stringification
+  - Example: `/v1/forecast` + `{latitude: "52.52", longitude: "13.41"}` → MD5 hash
 - TTL is configurable via `CACHE_TTL` environment variable
 - Health endpoint (`/health`) is NOT cached
 
