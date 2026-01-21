@@ -35,8 +35,8 @@ jobs:
       - name: Extract metadata for Docker
         id: meta
         run: |
-          # Get the image name (lowercase repository name)
-          IMAGE_NAME="ghcr.io/${{ github.repository }}"
+          # Get the image name (lowercase repository name without registry)
+          IMAGE_NAME="${{ github.repository }}"
           IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
           echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
           
