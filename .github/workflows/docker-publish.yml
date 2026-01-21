@@ -39,11 +39,59 @@ jobs:
           IMAGE_NAME="ghcr.io/${{ github.repository }}"
           IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
           echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+          
+          # Extract tag based on event type
+          if [ "${{ github.event_name }}" = "release" ]; then
+            # For releases, use the release tag
+            TAG="${{ github.event.release.tag_name }}"
+            
+            # Validate that tag is not empty
+            if [ -z "$TAG" ]; then
+              echo "Error: Release tag is empty"
+              exit 1
+            fi
+            
+            # Basic sanitization for release tags (remove any potential shell injection)
+            TAG=$(echo "$TAG" | sed 's/[;&|`$()]//g')
+            
+            # Validate tag is not empty after sanitization
+            if [ -z "$TAG" ]; then
+              echo "Error: Release tag became empty after sanitization"
+              exit 1
+            fi
+            
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "Building release with tag: $TAG"
+          else
+            # For branch pushes, use branch name with sanitization
+            TAG="${{ github.ref_name }}"
+            
+            # Sanitize branch name for Docker tag compatibility
+            # Step 1: Convert to lowercase
+            TAG=$(echo "$TAG" | tr '[:upper:]' '[:lower:]')
+            # Step 2: Replace / with -
+            TAG=$(echo "$TAG" | tr '/' '-')
+            # Step 3: Remove invalid characters (keep only a-z0-9._-)
+            TAG=$(echo "$TAG" | sed 's/[^a-z0-9._-]//g')
+            # Step 4: Strip leading/trailing special characters
+            TAG=$(echo "$TAG" | sed 's/^[._-]*//; s/[._-]*$//')
+            # Step 5: Collapse consecutive dashes
+            TAG=$(echo "$TAG" | sed 's/[-][-]*/-/g')
+            
+            # Ensure tag is not empty after sanitization
+            if [ -z "$TAG" ]; then
+              TAG="unknown"
+            fi
+            
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "Building branch with tag: $TAG"
+          fi
 
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v6
         with:
           image: ${{ steps.meta.outputs.image_name }}
+          tags: ${{ steps.meta.outputs.tag }}
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
