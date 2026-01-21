@@ -35,10 +35,17 @@ jobs:
       - name: Extract metadata for Docker
         id: meta
         run: |
-          # Get the image name (lowercase repository name without registry)
-          IMAGE_NAME="${{ github.repository }}"
-          IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
+          # Get the repository owner and name separately
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
+          
+          # Set the image name to just the repository name
+          IMAGE_NAME="$REPO_NAME"
           echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+          
+          # Set the registry with the owner namespace
+          REGISTRY="ghcr.io/$REPO_OWNER"
+          echo "registry=$REGISTRY" >> $GITHUB_OUTPUT
           
           # Extract tag based on event type
           if [ "${{ github.event_name }}" = "release" ]; then
@@ -92,7 +99,7 @@ jobs:
         with:
           image: ${{ steps.meta.outputs.image_name }}
           tags: ${{ steps.meta.outputs.tag }}
-          registry: ghcr.io
+          registry: ${{ steps.meta.outputs.registry }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           addLatest: false
