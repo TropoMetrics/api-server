@@ -15,7 +15,7 @@ services:
       retries: 3
 
   api:
-    build: .
+    image: ghcr.io/tropometrics/api-server:main
     container_name: openmeteo-cache-api
     restart: unless-stopped
     ports:
